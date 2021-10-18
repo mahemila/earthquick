@@ -27,7 +27,7 @@ app.layout = html.Div([
         dbc.Row(
              dbc.Col([
                  dbc.Row([
-                     dbc.Col(['Magnitude',
+                     dbc.Col(['Magnitude ab',
                               dcc.Dropdown(id='mag_num',
                               options=dd_mag,
                               value = min([x['value'] for x in dd_mag])
@@ -43,7 +43,8 @@ app.layout = html.Div([
                 width={"size": 8, "offset": 2})
         ),
 
-        html.Div(style={'height':'10vh'}),
+        #html.Div(style={'height':'10vh'}),
+        #html.Br(),
 
         dbc.Container(
             dbc.Row([
@@ -76,7 +77,8 @@ app.layout = html.Div([
                     ), {'width':10} #, style={'border-style': 'dotted','border-color':'red'}
         ),
 
-        html.Div(style={'height':'10vh'}),
+        #html.Div(style={'height':'10vh'}),
+        #html.Br(),
         dbc.Row([
                 dbc.Col(dcc.Graph(
                         figure=vis.mag_rms()

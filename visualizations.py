@@ -23,6 +23,7 @@ def h_diagram(mag_list):
                         #animation_frame='Clock',
                          color = 'mag'
     )
+    #fig.update_traces(marker={'size':5})
     return fig
 
 def lands_vis(l1, l2):
