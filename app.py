@@ -1,9 +1,8 @@
 import dash
 from dash import html
 from dash import dcc
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
-import plotly.express as px
 import pandas as pd
 import os
 import visualizations as vis
@@ -13,113 +12,87 @@ fname = 'all_month.csv'
 path = os.path.join(pre, fname)
 df = pd.read_csv(path)
 
+#Add Columns
+dff = df.copy()
+dff['Clock']=pd.DatetimeIndex(dff['time']).hour
+dff['Month'] = pd.DatetimeIndex(dff['time']).month
+add_ones_column = dff.loc[:,'ones'] = 1
+
+
+#prepare slider
 mag_list = set(int(i) for i in sorted(df['mag'].dropna().unique()))
 dd_mag = [{'label':str(int(i)), 'value':int(i)} for i in mag_list if i>=0]
+slider = {i:str(i) for i in mag_list}
+
+#prepare dropdown
 lands = list(set([i.split(', ')[0] if len(i.split(', '))==1 else i.split(', ')[1] for i in df['place']]))
 dd_land = [{'label':i, 'value':i} for i in sorted(lands)]
-#slider = {i:str(i*10) for i in range(0,11)}
-slider = {i:str(i) for i in mag_list}
-app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP],suppress_callback_exceptions=True,
-                meta_tags=[
-                    {"name": "viewport", "content": "width=device-width, initial-scale=1"}
-                ]
-                )
+
+app = dash.Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 app.layout = html.Div([
+    #top Bar
         html.Div(
             html.P('Earthquick - BOMBOM', style={'color':'white', 'padding-left':'100px', 'padding-top':'2vh'}),
             style={'height':'5vh', 'background-color':'black', 'margin-lef':'30%'}),
         html.Br(),
 
-        #dbc.Row([
-         #   dbc.Col([
-          #      'Choose Continent',
-           #     dbc.Select(
-            #        options=dd_mag,
-             #       value=min([x['value'] for x in dd_mag])
-              #  )
-        #    ],width={"size": 2, "offset": 4}),
-         #   dbc.Col(['Choose time frame',
-         #       dcc.RangeSlider(
-          #          min=min(slider.keys()),
-           #         max=max(slider.keys()),
-            #        marks=slider,
-             #       value=[min(slider.keys()), max(slider.keys())]
-              #  )
-            #], width={"size": 4}),
-        #]),
+    #Slider => controls all diagramms
+        dbc.Row(
+                dbc.Col(['Magnitude',
+                        dcc.RangeSlider(
+                            id='mag_num',
+                            min=min([x['value'] for x in dd_mag]),
+                            max=max([x['value'] for x in dd_mag]),
+                            marks=slider,
+                            value=[min([x['value'] for x in dd_mag]), max([x['value'] for x in dd_mag])]
+                        )
+                    ], width={"size": 4, 'offset':4}),
+        ),
 
+    #=====================
+    # START DIAGRAMMS
+    # Structure:
+        # 1 Row => 3 Columns
+        # Col 1,3 => 2 Rows
+        # Col 2 => 1 Row
+    #=====================
 
         dbc.Row([
-#col1
+#First column
             dbc.Col([
-
                 dbc.Row(
                     dbc.Col([
                         dbc.Row([
-                            dbc.Col(['Land 1',
+                            dbc.Col(['Choose Regions',
                                 dcc.Dropdown(
-
-                                id='land1',
+                                id='lands',
                                 options=dd_land,
-                                value=sorted(lands)[0],
-                                )], width={"size": 4, "offset": 2},),
-                            dbc.Col(
-                                ['Land 2',
-                                dcc.Dropdown(
-                                    id='land2',
-                                    options=dd_land,
-                                    value=sorted(lands)[1],
-                                )], width=4)
-                        ]
-                        ),
+                                value=[sorted(lands)[0],sorted(lands)[1]],
+                                multi=True
+                                )], width={"size": 8, "offset": 2})
+                        ]),
                         dbc.Row(
-                            dbc.Col(dcc.Graph(id='land_depth'),width={"size": 12}))
+                            dbc.Col(dcc.Graph(id='land_depth',config={'displayModeBar': False}),width={"size": 12}))
                     ]),
                 ),
                 dbc.Row(
                     dbc.Col(dcc.Graph(id='mag_hour'), width={"size": 12})
                 ),
 
-            ],width={"size": 3}) ,
-#col2
-            dbc.Col([
-                #html.Br(),
-                #html.Div(style={'height':'10vh'}),
-                dbc.Row([
-                    #[dbc.Col([
-                     #   'Magnitude ab',
-                      #      dbc.Select(
-                       #         id='mag_num',
-                        #        options=dd_mag,
-                         #       value=min([x['value'] for x in dd_mag])
-                          #  )
-                        #],width={"size": 3, 'offset':1}),
+            ],width={"size": 3}),
 
-                        dbc.Col(['Magnitude',#'Time frame',
-                            dcc.RangeSlider(
-                                id='mag_num',
-                                min=min([x['value'] for x in dd_mag]),#min(slider.keys()),
-                                max=max([x['value'] for x in dd_mag]),#max(slider.keys()),
-                                marks=slider,
-                                value=[min([x['value'] for x in dd_mag]), max([x['value'] for x in dd_mag])]
-                                #[min(slider.keys()), max(slider.keys())]
-                            )
-                        ], width={"size": 8, 'offset':1})]),
-                html.Br(),
+#Seconed column: Main diagramm
+            dbc.Col([
+                html.Div(style={'height':'12vh'}),
                 dbc.Row(dbc.Col(
                     dcc.Graph(id='haupt_vis')
-                       # figure=px.bar(x=[1,2,3], y=[10,20,30], height=900)
                     ,width={"size": 12}))
             ],width={"size": 6}),
-            #dbc.Col(dcc.Graph(
-             #   figure=px.bar(x=[1,2,3], y=[10,20,30], height=900)
-            #),width={"size": 6}),
 
-#col 3
+#Third column
             dbc.Col([
                 html.Div(style={'height':'10vh'}),
-                #html.Br(),
                 dbc.Row(
                     dbc.Col(dcc.Graph(id='mag_rms'), width={"size": 12})),
                 dbc.Row(
@@ -129,47 +102,36 @@ app.layout = html.Div([
         ]),
 
 ])
+#========================================
+# End of App-Layout / Start of Callbacks
+#========================================
 
 @app.callback(
-    Output('haupt_vis', 'figure'),
-    [Input('mag_num', 'value')]
-)
-def get_mag(mag_list):
-    return vis.h_diagram(mag_list)
+    [Output('haupt_vis', 'figure'),
+     Output('mag_hour', 'figure'),
+     Output('mag_rms', 'figure'),
+     Output('box_plot', 'figure')],
+    [Input('mag_num', 'value')])
+def get_figures(mag_list):
+    ff_df = dff[(dff['mag'] >= int(mag_list[0])) &  (dff['mag'] <= int(mag_list[1]))]
 
-@app.callback(
-    Output('mag_hour', 'figure'),
-    [Input('mag_num', 'value')]
-)
-def get_box_plot(mag_list):
-    return vis.hours_mags(mag_list)
+    return vis.h_diagram(ff_df),\
+           vis.hours_mags(ff_df),\
+           vis.mag_rms(ff_df),\
+           vis.box_month_gab(ff_df)
+
 
 @app.callback(
     Output('land_depth', 'figure'),
-    [Input('land1', 'value'),
-     Input('land2', 'value'),
+    [Input('lands', 'value'),
      Input('mag_num', 'value')]
 )
-def get_lands(l1,l2,mag_list):
-    if l1=='':
-        l1==sorted(lands)[0]
-    if l2=='':
-        l1 == sorted(lands)[1]
-    return vis.lands_vis(l1,l2, mag_list)
+def get_lands(lands, mag_list):
+    return vis.lands_vis(lands, mag_list)
 
-@app.callback(
-    Output('mag_rms', 'figure'),
-    [Input('mag_num', 'value')]
-)
-def get_box_plot(mag_list):
-    return vis.mag_rms(mag_list)
-
-@app.callback(
-    Output('box_plot', 'figure'),
-    [Input('mag_num', 'value')]
-)
-def get_box_plot(mag_list):
-    return vis.box_month_gab(mag_list)
+#=============
+#End Callbacks
+#=============
 
 if __name__ == '__main__':
     app.run_server(debug=True)
