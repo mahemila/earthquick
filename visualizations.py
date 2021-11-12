@@ -48,7 +48,6 @@ def mag_rms(f_df):
 
 def box_month_gab(f_df):
     df_month_gap=f_df
-    #df_month_gap['Month'] = pd.DatetimeIndex(df_month_gap['time']).month
     fig = px.box(df_month_gap, x='Month', y='gap', labels = {'Month':'Month in Year 2021'})
     return fig
 
