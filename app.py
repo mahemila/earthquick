@@ -27,6 +27,7 @@ slider = {i:str(i) for i in mag_list}
 #prepare dropdown
 lands = list(set([i.split(', ')[0] if len(i.split(', '))==1 else i.split(', ')[1] for i in df['place']]))
 dd_land = [{'label':i, 'value':i} for i in sorted(lands)]
+sorted_lands = sorted(lands)
 
 app = dash.Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -68,7 +69,7 @@ app.layout = html.Div([
                                 dcc.Dropdown(
                                 id='lands',
                                 options=dd_land,
-                                value=[sorted(lands)[0],sorted(lands)[1]],
+                                value=[sorted_lands[0],sorted_lands[1]],
                                 multi=True
                                 )], width={"size": 8, "offset": 2})
                         ]),
