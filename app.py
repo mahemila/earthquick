@@ -126,8 +126,8 @@ def get_figures(mag_list):
     [Input('lands', 'value'),
      Input('mag_num', 'value')]
 )
-def get_lands(lands, mag_list):
-    return vis.lands_vis(lands, mag_list)
+def get_lands(lands_dd, mag_list):
+    return vis.lands_vis(lands_dd, mag_list)
 
 #=============
 #End Callbacks
