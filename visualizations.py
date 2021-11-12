@@ -11,15 +11,13 @@ path = os.path.join(pre, fname)
 
 df = pd.read_csv(path)
 
-def h_diagram(f_df):
-    geo_df = f_df
+def h_diagram(geo_df):
     geo_df = geo_df.sort_values('Clock', ascending=True)
     fig = px.scatter_geo(geo_df,lat=geo_df['latitude'],lon=geo_df['longitude'],
                          hover_name="place",color = 'mag',width=1000, height=600)
     return fig
 
-def hours_mags(f_df):
-    df_mag_hours = f_df
+def hours_mags(df_mag_hours):
     df_droped = df_mag_hours.dropna()
     df_x_grouped = df_droped.groupby('Clock').sum().reset_index()
     df_x_grouped['mean'] = round(df_x_grouped.mag / df_x_grouped.ones, 2)
@@ -40,14 +38,12 @@ def lands_vis(regions, mag_list):
     fig.update_yaxes(autorange='reversed',title_text = 'Mean Depth' )
     return fig
 
-def mag_rms(f_df):
-    df_mag_rms=f_df
+def mag_rms(df_mag_rms):
     fig = px.scatter(df_mag_rms, x='mag', y='rms', trendline="ols", trendline_color_override="red",
                      labels={'mag':'Magnitude', 'rms':'Duration/rms'})
     return fig
 
-def box_month_gab(f_df):
-    df_month_gap=f_df
+def box_month_gab(df_month_gap):
     fig = px.box(df_month_gap, x='Month', y='gap', labels = {'Month':'Month in Year 2021'})
     return fig
 
