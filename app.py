@@ -1,7 +1,7 @@
 import dash
 from dash import html
 from dash import dcc
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 import pandas as pd
 import os
@@ -39,7 +39,7 @@ app.layout = html.Div([
         html.Br(),
 
     #Slider => controls all diagramms
-        dbc.Row(
+        dbc.Row([
                 dbc.Col(['Magnitude',
                         dcc.RangeSlider(
                             id='mag_num',
@@ -49,8 +49,36 @@ app.layout = html.Div([
                             value=[min([x['value'] for x in dd_mag]), max([x['value'] for x in dd_mag])]
                         )
                     ], width={"size": 4, 'offset':4}),
-        ),
+                dbc.Col(dbc.Button('Informations', outline=True, color="info", className="me-1",id='infoButton', n_clicks=0),
+                        width={"size": 2, 'offset':2})
+        ]),
+    dbc.Modal([dbc.ModalHeader(html.H4('Willkommen auf dem Dashboard zur Visualisierung von Erdbebendaten')),
+               dbc.ModalBody(html.Div([
+                   html.P([dcc.Markdown('''
+                   Auf diesem Dashboard werden Daten zu Erdbeben der USGS (https://earthquake.usgs.gov/) in verschiedenen 
+                   Diagrammen visualisiert. Mithilfe einer Magnitude-Slide lassen sich die Daten in den Diagrammen 
+                   einheitlich anpassen. Im Diagramm zur Visualisierung der durchschnittlichen Erdbebentiefe pro Land 
+                   lassen sich zudem durch manuelle Anpassungen verschiedene Länder bezüglich ihrer durchschnittlichen 
+                   Erdbebentiefe vergleichen. 
+                   Wir hoffen sehr, mit diesem Dashboard einen interessanten Einblick in die Welt der Seismologie geben zu können.
+                   ''')])
 
+               ])),
+            dbc.ModalFooter(
+                            [html.P('Developed by I.Kilchenmann, S.Weber-Martin and M.Hemila 2021-2022',
+                                    style={'margin-left':0, 'margin-right':'auto'}),
+                                html.P(''),
+                                dbc.Button(
+                                "Close", id="close", className="ms-auto", n_clicks=0
+                            )]
+                        )
+
+               ],
+                id="modal",
+                scrollable=True,
+                is_open=False,
+                size="lg"
+),
     #=====================
     # START DIAGRAMMS
     # Structure:
@@ -88,18 +116,18 @@ app.layout = html.Div([
                 html.Div(style={'height':'12vh'}),
                 dbc.Row(dbc.Col(
                     dcc.Graph(id='haupt_vis')
-                    ,width={"size": 12}))
-            ],width={"size": 6}),
+                    ,width={"size": 10}))
+            ],width={"size": 5}),
 
 #Third column
             dbc.Col([
                 html.Div(style={'height':'10vh'}),
-                dbc.Row(
-                    dbc.Col(dcc.Graph(id='mag_rms'), width={"size": 12})),
+                dbc.Row([#'Zusammenhang zwischen Erdbeben und Magnitude',
+                    dbc.Col(dcc.Graph(id='mag_rms'), width={"size": 12})]),
                 dbc.Row(
                     dbc.Col(dcc.Graph(id='box_plot'), width={"size": 12})
                 ),
-            ])
+            ], width={"size": 3, "offset": 1})
         ]),
 
 ])
@@ -129,6 +157,17 @@ def get_figures(mag_list):
 )
 def get_lands(lands_dd, mag_list):
     return vis.lands_vis(lands_dd, mag_list)
+
+@app.callback(
+    Output("modal", "is_open"),
+    [Input("infoButton", "n_clicks"), Input("close", "n_clicks")],
+    [State("modal", "is_open")],
+)
+def toggle_info(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
 
 #=============
 #End Callbacks
