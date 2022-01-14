@@ -15,7 +15,7 @@ df = pd.read_csv(path)
 def h_diagram(geo_df):
     geo_df = geo_df.sort_values('Clock', ascending=True)
     fig = px.scatter_geo(geo_df,lat=geo_df['latitude'],lon=geo_df['longitude'],
-                         hover_name="place",color = 'mag',width=1000, height=600,
+                         hover_name="place",color = 'mag',width=800, height=600,
                          title='Erdebenen pro Magnitude Weltweit')
     return fig
 
@@ -26,7 +26,7 @@ def hours_mags(df_mag_hours):
     df_x_grouped.Clock = [str(h)+':00' for h in df_x_grouped.Clock]
 
 
-    fig = px.line(df_x_grouped, x='Clock', y='mean', labels={'mean':'Mean Magnitude', 'Clock':'Time'}
+    fig = px.line(df_x_grouped, x='Clock', y='mean', labels={'mean':'Durchschnittliche Magnitude', 'Clock':'Uhrzeit'}
                   ,title='Durchschnittliche Magnitude pro Uhrzeit')
     fig.update_layout(font=dict(size=12, family="Arial"))
     return fig
@@ -41,20 +41,20 @@ def lands_vis(regions, mag_list):
         y_v.append(mean)
     fig = go.Figure([go.Bar(y=y_v, x=regions)])
     fig.update_xaxes(side="top", title_text = 'Region')
-    fig.update_yaxes(autorange='reversed',title_text = 'Mean Depth in Meter' )
+    fig.update_yaxes(autorange='reversed',title_text = 'Durchschnittliche Tiefe in Kilometer' )
     fig.update_layout(title='Durchschnittliche Erdbeben pro Länder', font=dict(size=12, family="Arial"))
     return fig
 
 def mag_rms(df_mag_rms):
     fig = px.scatter(df_mag_rms, x='mag', y='rms', trendline="ols", trendline_color_override="red",
-                     labels={'mag':'Magnitude', 'rms':'Duration/rms'},
+                     labels={'mag':'Magnitude', 'rms':'Dauer/rms'},
                      title='Zusammenhang zwischen Erdbeben und Magnitude')
     fig.update_layout(font=dict(size=12, family="Arial"))#title_font_size=12, title_font_family="Arial")
     return fig
 
 def box_month_gab(df_month_gap):
     mon = ['September' if x == 9 else 'October' for x in df_month_gap['Month']]
-    fig = px.box(df_month_gap, x=mon, y='gap', labels = {'x':'Month in Year 2021'},
+    fig = px.box(df_month_gap, x=mon, y='gap', labels = {'x':'Monat im Jahr 2021', 'y':'Gap'},
                  title='Durchschnittliche Magnitude pro Uhrzeit')
     fig.update_layout(font=dict(size=12, family="Arial"))
     return fig
