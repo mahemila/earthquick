@@ -55,7 +55,7 @@ def mag_rms(df_mag_rms):
 def box_month_gab(df_month_gap):
     mon = ['September' if x == 9 else 'October' for x in df_month_gap['Month']]
     fig = px.box(df_month_gap, x=mon, y='gap', labels = {'x':'Monat im Jahr 2021', 'y':'Gap'},
-                 title='Durchschnittliche Magnitude pro Uhrzeit')
+                 title='Boxplot zur Datenverteilung Gap/Monat')
     fig.update_layout(font=dict(size=12, family="Arial"))
     return fig
 
