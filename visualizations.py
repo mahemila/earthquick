@@ -16,7 +16,7 @@ def h_diagram(geo_df):
     geo_df = geo_df.sort_values('Clock', ascending=True)
     fig = px.scatter_geo(geo_df,lat=geo_df['latitude'],lon=geo_df['longitude'],
                          hover_name="place",color = 'mag',width=800, height=600,
-                         title='Erdebenen pro Magnitude Weltweit')
+                         title='Erdbeben pro Magnitude Weltweit')
     return fig
 
 def hours_mags(df_mag_hours):
